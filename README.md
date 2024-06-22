@@ -110,4 +110,4 @@ If you have any questions or feedback, please [open an issue](https://github.com
 
 ## Author
 
-Created by [Mehdi Salari](https://github.com/MehdiSlr) [@Meytttii](https://github.com/Meytttii).
+Created by [Mehdi Salari](https://github.com/MehdiSlr) - Telegram [@Meytttii](https://t.me/Meytttii).
