@@ -1,25 +1,44 @@
 <?php
-require 'token.php';
-define ('BOT_TOKEN', $token);
-define ('TELEGRAM_URL','https://api.telegram.org/bot'.BOT_TOKEN.'/');
+/**
+ * Configuration file for the bot.
+ */
+require 'config.php';
 
-function msg($method,$params){
-    if(!$params){
+// Define constants for the bot token and Telegram API URL
+define('BOT_TOKEN', $token);
+define('TELEGRAM_URL', 'https://api.telegram.org/bot' . BOT_TOKEN . '/');
+
+/**
+ * Send a message to the Telegram bot.
+ *
+ * @param string $method The Telegram API method to call.
+ * @param array $params The parameters to send with the API call.
+ * @return string The result of the cURL execution.
+ */
+function msg($method, $params) {
+    if (!$params) {
         $params = array();
     }
     $params["method"] = $method;
     $ch = curl_init(TELEGRAM_URL);
-    curl_setopt($ch,CURLOPT_RETURNTRANSFER,true);
-    curl_setopt($ch,CURLOPT_CONNECTTIMEOUT,10);
-    curl_setopt($ch,CURLOPT_TIMEOUT,60);
-    curl_setopt($ch,CURLOPT_POSTFIELDS,json_encode($params));
-    curl_setopt($ch,CURLOPT_HTTPHEADER,array("Content-Type:application/json"));
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 10);
+    curl_setopt($ch, CURLOPT_TIMEOUT, 60);
+    curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($params));
+    curl_setopt($ch, CURLOPT_HTTPHEADER, array("Content-Type:application/json"));
     $result = curl_exec($ch);
     return $result;
 }
 
-function Joke($cat, $text){
-    $url = "https://v2.jokeapi.dev/joke/".$cat."?type=single&contains=".$text;
+/**
+ * Fetch a joke from the JokeAPI.
+ *
+ * @param string $cat The category of the joke.
+ * @param string $text The text to search within the joke.
+ * @return array The decoded JSON response from the API.
+ */
+function Joke($cat, $text) {
+    $url = "https://v2.jokeapi.dev/joke/" . $cat . "?type=single&contains=" . $text;
     $response = file_get_contents($url);
     if ($response === false) {
         // Handle error
@@ -33,42 +52,66 @@ function Joke($cat, $text){
     return $data;
 }
 
-function JokeMsg($cat, $text){
-    $msg = $text.'
+/**
+ * Format a joke message with its category.
+ *
+ * @param string $cat The category of the joke.
+ * @param string $text The text of the joke.
+ * @return string The formatted joke message.
+ */
+function JokeMsg($cat, $text) {
+    $msg = $text . '
 
-🗂️ Category: '.$cat.'
+🗂️ Category: ' . $cat . '
 🤖 @JokeBots_Bot';
     return $msg;
 }
 
-function text($msg){
+/**
+ * Retrieve predefined text messages.
+ *
+ * @param string $msg The key for the message to retrieve.
+ * @return string The predefined message.
+ */
+function text($msg) {
     $welcome = 'Welcome to Joke Bot. 🤗
 I can tell you some jokes. 😁
 Just select the category and I will tell you a joke. 🗂️';
 
     $random = 'Select the category and I will tell you a random joke. 🗂️👇🏼';
     $random_error = 'Sorry! No matching joke found. 😢
-    Try another category. 🗂️';
+Try another category. 🗂️';
     $custom_cat = 'Select the category of the joke. 🗂️';
     $custom_text = 'Enter the word you want to tell you a joke about. ⌨️';
+    $custom_error = 'Sorry! No matching joke found. 😢
+Try another category or word. 🗂️⌨️';
 
-    $info ="ℹ️ Bot Information:
-    🧑🏻‍💻 Creator: @Meytttii
-    🔁 API Site: https://v2.jokeapi.dev
-    #️⃣ Programming Language: PHP";
-            if($msg == 'welcome'){return $welcome;}
-            if($msg == 'random'){return $random;}
-            if($msg == 'custom_cat'){return $custom_cat;}
-            if($msg == 'custom_text'){return $custom_text;}
-            if($msg == 'random_error'){return $random_error;}
-            if($msg == 'info'){return $info;}
+    $info = 'ℹ️ Bot Information:
+🧑🏻‍💻 Creator: @Meytttii
+😼 GitHub: <a href="https://github.com/MehdiSlr"> Mehdi Salari </a>
+🔁 API Site: https://v2.jokeapi.dev
+#️⃣ Programming Language: PHP';
+
+    if ($msg == 'welcome') { return $welcome; }
+    if ($msg == 'random') { return $random; }
+    if ($msg == 'custom_cat') { return $custom_cat; }
+    if ($msg == 'custom_text') { return $custom_text; }
+    if ($msg == 'random_error') { return $random_error; }
+    if ($msg == 'custom_error') { return $custom_error; }
+    if ($msg == 'info') { return $info; }
 }
 
-function keyboard($keyboard){
+/**
+ * Generate the appropriate keyboard layout.
+ *
+ * @param string $keyboard The type of keyboard to generate.
+ * @return array The keyboard layout.
+ */
+function keyboard($keyboard) {
     $home = array(
         array(
-            array('text' => 'Randome Joke | 🎲', 'callback_data' => 'random'), 
-            // array('text' => 'Custom Joke | 📝', 'callback_data' => 'custom')
+            array('text' => 'Random Joke | 🎲', 'callback_data' => 'random'), 
+            array('text' => 'Custom Joke | 📝', 'callback_data' => 'custom')
         ),
         array(
             array('text' => 'Info | 💡', 'callback_data' => 'info')
@@ -100,25 +143,20 @@ function keyboard($keyboard){
         )
     );
 
+    if ($keyboard == 'home') { $btns = $home; }
+    if ($keyboard == 'cat') { $btns = $cat; }
+    if ($keyboard == 'info') { $btns = $info; }
 
-    if( $keyboard == 'home' ){ $btns = $home; }
-    if( $keyboard == 'cat' ){ $btns = $cat; }
-    if( $keyboard == 'info' ){ $btns = $info; }
-
-    if( $keyboard == 'custom_text' )
-    {
+    if ($keyboard == 'custom_text') {
         $keyboard = array(
             'resize_keyboard' => true,
             'keyboard' => $custom_text,
         );
-    }
-    elseif( $keyboard == 'remove' )
-    {
+    } elseif ($keyboard == 'remove') {
         $keyboard = array(
             'remove_keyboard' => true
         );
-    }
-    else{
+    } else {
         $keyboard = array(
             'resize_keyboard' => true,
             'inline_keyboard' => $btns
