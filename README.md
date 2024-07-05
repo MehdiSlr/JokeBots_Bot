@@ -1,31 +1,42 @@
 # JokeBot
 
-JokeBot is a simple Telegram bot that sends random jokes or jokes containing specific words provided by the user. The bot utilizes the [JokeAPI](https://v2.jokeapi.dev/) to fetch jokes and sends them to the user via the Telegram API.
+JokeBot is a simple Telegram bot designed to send jokes to users based on various categories or specific words. The bot uses the [JokeAPI](https://v2.jokeapi.dev/) to fetch jokes and interacts with users through the Telegram API.
 
 ## Features
 
-- Send random jokes from various categories.
+- Send random jokes from multiple categories.
 - Send jokes containing specific words provided by the user.
+- Language selection feature to support multilingual user interactions.
 - Provides bot information and usage instructions.
+- Logs interactions for debugging and improvement.
 
 ## Requirements
 
 - PHP 7.4 or higher
 - cURL extension for PHP
 - A Telegram bot token
+- MySQL or compatible database
 
 ## Installation
 
-1. Clone the repository to your local machine:
+Follow these steps to set up the bot:
+
+1. Clone the repository
+
+Clone the repository to your local machine and navigate into the project directory:
 
 ```sh
 git clone https://github.com/MehdiSlr/JokeBots_Bot.git
 cd JokeBots_Bot
 ```
 
-2. Install the required PHP dependencies (if any).
+2. Install Dependencies
 
-3. Create a `config.php` file in the project root directory and add your Telegram bot token and database details:
+There are no specific PHP dependencies to install via Composer at the moment, but ensure you have the cURL extension enabled.
+
+3. Configure `config.php`
+
+Create a `config.php` file in the project root directory with your Telegram bot token and database details:
 
 ```php
 <?php
@@ -34,12 +45,36 @@ $conn = mysqli_connect('YOUR_DATABASE_HOST', 'YOUR_DATABASE_USERNAME', 'YOUR_DAT
 ?>
 ```
 
-4. Set the bot webhook with enter the following url in your browser address bar:
+4. Set the Bot Webhook
+
+Set the webhook URL for the bot by entering the following URL in your browser:
+
 ```sh
 https://api.telegram.org/bot<YOUR_TELEGRAM_BOT_TOKEN>/setWebhook?url=<YOUR_HOST_URL>/index.php
 ```
+5. Update the Database Schema
 
-5. Start the bot in Telegram and enjoy it.
+Ensure that your database has the necessary tables for the bot. Here’s an example SQL schema to set up the `users` and `update_log` tables:
+
+```sql
+CREATE TABLE `users` (
+    `uid` BIGINT PRIMARY KEY,
+    `name` VARCHAR(255),
+    `user` VARCHAR(255),
+    `type` VARCHAR(255),
+    `cat` VARCHAR(255),
+    `lang` VARCHAR(5)
+);
+
+CREATE TABLE `update_log` (
+    `id` INT AUTO_INCREMENT PRIMARY KEY,
+    `json` TEXT
+);
+```
+
+6. Start the Bot
+
+Start a conversation with the bot on Telegram to initiate interaction.
 
 ## Usage
 
@@ -86,14 +121,21 @@ The `keyboard` function is used to generate the appropriate keyboard layout for 
 $keyboard = keyboard('home');
 ```
 
-## Bot Commands
+## Bot Commands and Callbacks
 
-The bot responds to various commands and callback queries:
+The bot responds to commands and callback queries:
 
 - `/start` - Displays the welcome message and main keyboard.
+- `Change Category | 🔄️` - Switches to custom joke mode.
 - `random` - Sends a random joke.
 - `custom` - Sends a joke containing the search term provided by the user.
+- `language` - Allows users to select a language preference.
 - `info` - Displays the bot and API information.
+- Callback queries for joke categories (`Any`, `Dark`, `Pun`, `Miscellaneous`, `Programming`, `Spooky`, `Christmas`).
+
+## Database Logging
+
+The bot logs incoming updates to the `update_log` table for debugging purposes.
 
 ## License
 
